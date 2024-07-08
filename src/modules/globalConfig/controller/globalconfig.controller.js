@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../../../utils/catchAsync');
 const { sendResponse } = require('../../../utils/responseHandler');
-const configService = require('../service/globalConfig.service');
+const configService = require('../service/globalconfig.service');
 
 const addConfig = catchAsync(async (req, res) => {
     console.log("Add Config");
