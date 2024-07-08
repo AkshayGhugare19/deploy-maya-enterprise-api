@@ -1,8 +1,8 @@
 
 const express = require('express');
-const path = require('path');
-const ConfigController = require(path.resolve(__dirname, '../../modules/globalConfig/controller/globalConfig.controller'));
-// const ConfigController = require('../../modules/globalConfig/controller/globalconfig.controller');
+// const path = require('path');
+// const ConfigController = require(path.resolve(__dirname, '../../modules/globalConfig/controller/globalconfig.controller'));
+const ConfigController = require('../../modules/globalConfig/controller/globalconfig.controller');
 
 const router = express.Router();
 
