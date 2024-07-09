@@ -181,8 +181,35 @@ const userSteppeprProgress = async (userId) => {
     }
 };
 
+const deleteSteppeprProgressByUserId = async (userId) => {
+    try {
+        let userObjectId = mongoose.Types.ObjectId(userId);
+        let existingStepperProgress = await StepperProgress.findOne({ userId: userObjectId });
+        if (!existingStepperProgress) {
+            return { data: "Stepper Progress Does not exist", status: false, code: 400 };
+        } else {
+            try {
+                let deleteQuery = {
+                    userId: userObjectId,
+                };
+
+                const deletedResult = await StepperProgress.deleteMany(deleteQuery);
+                if (deletedResult) {
+                    return { data: deletedResult, status: true, code: 200 };
+                } else {
+                    return { data: "Failed To Delete Stepper Progress", status: false, code: 400 };
+                }
+            } catch (error) {
+                return { data: error, status: false, code: 400 };
+            }
+        }
+    } catch (error) {
+        return { data: error.message, status: false, code: 500 };
+    }
+};
+
 module.exports = {
-    addStepperProgress, updateStepperProgress, userSteppeprProgress
+    addStepperProgress, updateStepperProgress, userSteppeprProgress, deleteSteppeprProgressByUserId
 }
 
 

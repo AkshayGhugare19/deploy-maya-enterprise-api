@@ -24,7 +24,7 @@ const add = {
     durationUnit: Joi.string().allow('').optional(),
     durationOfDosage: Joi.number().optional(),
     stripeSessionId: Joi.string().optional(),
-    totalPayment: Joi.string().optional(),
+    totalPayment: Joi.number().optional(),
   }),
 };
 

@@ -4,9 +4,12 @@ const { sendResponse } = require('../../../utils/responseHandler');
 const productService = require('../service/product.service');
 const pick = require('../../../utils/pick');
 const addProductController = catchAsync(async (req, res) => {
+    console.log('asdfasdfsdfsdfsdfsdf',req?.body)
     try {
         const { name, price, bannerImg, images, brandId, isPrescription,
-            marketer, saltComposition, origin, categoryId, stripCapsuleQty } = req.body;
+            marketer, saltComposition, origin, categoryId, stripCapsuleQty,productQuantity } = req?.body;
+        console.log("yyyy",name,price,bannerImg)
+
         let productObj = {
             name,
             isPrescription,
@@ -16,7 +19,8 @@ const addProductController = catchAsync(async (req, res) => {
             images,
             categoryId,
             brandId,
-            stripCapsuleQty
+            stripCapsuleQty,
+            productQuantity
         };
 
         const productRes = await productService.addProduct(productObj);
@@ -346,6 +350,22 @@ const getProductsOfNoOredrItems = catchAsync(async (req, res) => {
 });
 
 
+const addFieldToAllProducts = catchAsync(async (req, res) => {
+    console.log("Update Product feild");
+    try {
+
+        const productRes = await productService.addFieldToAllProducts();
+        if (!productRes.status) {
+            return sendResponse(res, httpStatus.NOT_FOUND, null, productRes.message);
+        }
+        const product = productRes.product;
+        sendResponse(res, httpStatus.OK, { product, msg: productRes.message }, null);
+    } catch (error) {
+        console.error("Error in updating product", error);
+        sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, error.message);
+    }
+});
+
 module.exports = {
     addProductController,
     addProductInformationController,
@@ -364,5 +384,6 @@ module.exports = {
     deleteProductById,
     getProductById,
     updateProductById,
-    getProductsOfNoOredrItems
+    getProductsOfNoOredrItems,
+    addFieldToAllProducts
 };

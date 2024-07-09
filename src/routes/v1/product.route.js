@@ -27,6 +27,7 @@ router.get('/get-product-details-information-by-product/:id', productController.
 router.put('/delete-product/:id',  productController.deleteProductById);
 router.get('/get-product/:id',  productController.getProductById);
 router.put('/update-product/:id',productController.updateProductById);
+router.put('/update-product-field',productController.addFieldToAllProducts);
 
 
 module.exports = router;

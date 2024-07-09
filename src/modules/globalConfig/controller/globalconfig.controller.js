@@ -4,7 +4,7 @@ const { sendResponse } = require('../../../utils/responseHandler');
 const configService = require('../service/globalconfig.service');
 
 const addConfig = catchAsync(async (req, res) => {
-    console.log("Add Config done");
+    console.log("Add Config");
     try {
         const { deliveryCharges, currencyId, packagingCharges, location } = req.body;
 

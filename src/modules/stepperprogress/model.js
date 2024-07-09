@@ -31,6 +31,26 @@ const stepperprogressSchema = mongoose.Schema(
             type: Number,
             default: 0
         },
+        prescriptionDuration: {
+            type: Number,
+            default: null
+        },
+        prescriptionDuration: {
+            type: String,
+            default: null
+        },
+        prescriptionDurationUnit: {
+            type: String,
+            default: null
+        },
+        orderMode: {
+            type: String,
+            default: null
+        },
+        enquiryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null
+        },
     },
     {
         timestamps: true,

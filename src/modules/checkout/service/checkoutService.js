@@ -107,13 +107,31 @@ const getSessionInfo = async (req, res) => {
       req.params.session_id
     );
     const orderId = session.metadata.orderId;
-    const paymentIntent = await stripe.paymentIntents.retrieve(
-      session.payment_intent
-    );
+    const orderMode = session.metadata.orderMode;
+    const orderType = session.metadata.orderType;
+
+    const orderItems = await OrderItem.find({ orderId });
+    
+    for (const item of orderItems) {
+      const productId = item.productId;
+      const quantity = item.quantity;
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        return { code: 404, status: false, data: `Product with ID ${productId} not found` };
+      }
+      console.log("KKKKK",product.productQuantity , quantity,item)
+      const newProductQuantity = Math.max(product.productQuantity - quantity, 0);
+        await Product.findByIdAndUpdate(productId, { productQuantity: newProductQuantity });
+    }
 
     await Order.updateOne(
       { _id: orderId },
       { $set: { stripeSessionId: session.id, orderMode: orderMode, orderType: orderType } }
+    );
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(
+      session.payment_intent
     );
 
     return { code: 201, status: true, data: paymentIntent };

@@ -43,6 +43,11 @@ const addProduct = {
             "number.positive": `stripCapsuleQty must be a positive value`,
             "any.required": `stripCapsuleQty is a required field`
         }),
+        productQuantity: Joi.number().positive().required().messages({
+            "number.base": `productQuantity must be a number`,
+            "number.positive": `productQuantity  must be a positive value`,
+            "any.required": `productQuantity  is a required field`
+        }),
         bannerImg: Joi.string().uri().required().messages({
             "string.uri": `bannerImg must be a valid URI`,
             "any.required": `bannerImg is a required field`

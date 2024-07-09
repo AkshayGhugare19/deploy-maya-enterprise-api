@@ -9,6 +9,7 @@ const OrderItem = require("../../orderItem/model");
 const addProduct = async (productBody) => {
     try {
         const { name } = productBody;
+        console.log("rrr",productBody)
         const existingProduct = await Product.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
         if (existingProduct) {
             return { code: 409, status: false, data: 'Product with this name already exists' };
@@ -362,6 +363,31 @@ const fetchProductsOfNoOrderItems = async (id) => {
 };
 
 
+const addFieldToAllProducts = async () => {
+    try {
+        const updateResult = await Product.updateMany({}, { $set: { ["productQuantity"]: 20 } });
+        if(updateResult){
+            return {
+                status: true,
+                code: 200,
+                message: `Added  documents.`
+            };
+        }else{
+            return {
+                status: false,
+                code: 400,
+                message: `Something went wrong.`
+            };
+        }
+        
+    } catch (error) {
+        return {
+            status: false,
+            code: 500,
+            message: error.message
+        };
+    }
+};
 
 
 
@@ -384,5 +410,6 @@ module.exports = {
     softDeleteProductById,
     getProductById,
     updateProductById,
-    fetchProductsOfNoOrderItems
+    fetchProductsOfNoOrderItems,
+    addFieldToAllProducts
 }

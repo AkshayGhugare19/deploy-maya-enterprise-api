@@ -4,6 +4,7 @@ const express = require('express');
 // const ConfigController = require(path.resolve(__dirname, '../../modules/globalConfig/controller/globalconfig.controller'));
 const ConfigController = require('../../modules/globalConfig/controller/globalconfig.controller');
 
+
 const router = express.Router();
 
 router.post('/add-config', ConfigController.addConfig);

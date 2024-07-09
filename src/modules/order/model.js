@@ -18,13 +18,13 @@ const orderSchema = mongoose.Schema(
     enquiryStatus: {
       type: String,
       enum: ["fulfilled", "awaiting_response", "in_progress"],
-      default: "awaiting_response",
+      required: false
     },
     stripeSessionId: {
       type: String,
     },
     totalPayment: {
-      type: String,
+      type: Number,
     },
     mode: {
       type: String,
