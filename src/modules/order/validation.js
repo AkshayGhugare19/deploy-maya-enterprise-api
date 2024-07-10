@@ -21,6 +21,9 @@ const add = {
     enquiryType: Joi.string()
       .valid('asPerPrescription', 'call')
       .optional(),
+    enquiryStatus: Joi.string()
+      .valid("fulfilled", "awaiting_response", "in_progress")
+      .optional(),
     durationUnit: Joi.string().allow('').optional(),
     durationOfDosage: Joi.number().optional(),
     stripeSessionId: Joi.string().optional(),

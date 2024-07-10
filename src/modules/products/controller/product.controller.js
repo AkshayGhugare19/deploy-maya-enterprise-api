@@ -6,13 +6,14 @@ const pick = require('../../../utils/pick');
 const addProductController = catchAsync(async (req, res) => {
     console.log('asdfasdfsdfsdfsdfsdf',req?.body)
     try {
-        const { name, price, bannerImg, images, brandId, isPrescription,
+        const { name, price, bannerImg, images, brandId, isPrescription, avgRating,discountedPrice,           
             marketer, saltComposition, origin, categoryId, stripCapsuleQty,productQuantity } = req?.body;
-        console.log("yyyy",name,price,bannerImg)
+        
 
         let productObj = {
             name,
             isPrescription,
+            avgRating,discountedPrice,            
             marketer, saltComposition, origin,
             price,
             bannerImg,

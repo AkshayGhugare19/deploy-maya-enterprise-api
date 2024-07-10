@@ -1,16 +1,25 @@
 const pick = require("../../../utils/pick");
+const Product = require("../../products/model");
 const OrderItem = require("../model");
 const mongoose = require("mongoose");
 
 const addOrderItem = async (body) => {
   try {
-    const addResult = await OrderItem.create(body);
 
-    if (addResult) {
-      return { data: addResult, status: true, code: 201 };
-    } else {
-      return { data: "OrderItem not created", status: false, code: 400 };
+    const { orderId, productId, quantity} = body;
+    const product = await Product.findById({ _id: productId})
+    console.log("eee",product)
+    if(product?.productQuantity > quantity){
+      const addResult = await OrderItem.create(body);
+      if (addResult) {
+        return { data: addResult, status: true, code: 201 };
+      } else {
+        return { data: "OrderItem not created", status: false, code: 400 };
+      }
+    }else{
+      return { data: "Item quantity should be less than total product quantity", status: false, code: 400 }; 
     }
+    
   } catch (error) {
     return { data: error.message, status: false, code: 500 };
   }

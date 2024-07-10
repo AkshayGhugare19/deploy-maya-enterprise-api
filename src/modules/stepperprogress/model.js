@@ -23,6 +23,10 @@ const stepperprogressSchema = mongoose.Schema(
             type: Number,
             default: 0
         },
+        currentStepForUploadPres: {
+            type: Number,
+            default: 0
+        },
         totalCartAmount: {
             type: Number,
             default: 0
@@ -33,6 +37,10 @@ const stepperprogressSchema = mongoose.Schema(
         },
         prescriptionDuration: {
             type: Number,
+            default: null
+        },
+        prescriptionType: {
+            type: String,
             default: null
         },
         prescriptionDuration: {
@@ -50,6 +58,10 @@ const stepperprogressSchema = mongoose.Schema(
         enquiryId: {
             type: mongoose.Schema.Types.ObjectId,
             default: null
+        },
+        isOrderEnquired: {
+            type: Boolean,
+            default: false
         },
     },
     {

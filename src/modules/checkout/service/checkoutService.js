@@ -1,4 +1,5 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+//const PublicUrl = "http://localhost:3000";
 const PublicUrl = "https://deploy-maya-enterprise-web.vercel.app";
 const Order = require("../../order/model");
 const OrderItem = require("../../orderItem/model");
@@ -127,7 +128,7 @@ const getSessionInfo = async (req, res) => {
 
     await Order.updateOne(
       { _id: orderId },
-      { $set: { stripeSessionId: session.id, orderMode: orderMode, orderType: orderType } }
+      { $set: { stripeSessionId: session.id, mode: orderMode, orderType: orderType } }
     );
 
     const paymentIntent = await stripe.paymentIntents.retrieve(

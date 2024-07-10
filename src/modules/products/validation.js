@@ -23,7 +23,13 @@ const addProduct = {
             "string.empty": `Category id must contain value`,
             "any.required": `Category id is a required field`
         }),
-        ratings: Joi.number().min(0).max(5).messages({
+        // ratings: Joi.number().min(0).max(5).messages({
+        //     "number.base": `Ratings must be a number`,
+        //     "number.min": `Ratings must be at least 0`,
+        //     "number.max": `Ratings must be at most 5`,
+        //     "any.required": `Ratings is a required field`
+        // }),
+        avgRating: Joi.number().min(0).max(5).messages({
             "number.base": `Ratings must be a number`,
             "number.min": `Ratings must be at least 0`,
             "number.max": `Ratings must be at most 5`,

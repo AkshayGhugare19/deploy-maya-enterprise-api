@@ -163,15 +163,16 @@ const userSteppeprProgress = async (userId) => {
             if (globalConfigData) {
                 console.log("globalConfigData", globalConfigData);
                 const { deliveryCharges, packagingCharges } = globalConfigData?.config[0];
-
                 totalCartAmount = carts.reduce((sum, cart) => sum + cart.total_price, 0);
                 cartAmount = totalCartAmount;
                 console.log("charges", deliveryCharges, packagingCharges);
                 totalCartAmount += deliveryCharges || 0;
                 totalCartAmount += packagingCharges || 0;
             }
+            console.log("carts", carts, userObjectId);
             existingStepperProgress.totalCartAmount = totalCartAmount;
             existingStepperProgress.cartAmount = cartAmount;
+            console.log("existingStepperProgress", existingStepperProgress);
             await existingStepperProgress.save();
 
             return { data: existingStepperProgress, status: true, code: 200 };
