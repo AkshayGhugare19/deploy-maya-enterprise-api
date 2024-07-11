@@ -38,7 +38,7 @@ const updateOrderItem = async (req, res) => {
       { new: true }
     );
     if (updatedResult?.orderId) {
-     const getUpdatedOrderItems = await getOrderItemByOrderId(updatedResult?.orderId)
+      const getUpdatedOrderItems = await getOrderItemByOrderId(updatedResult?.orderId)
       return { data: getUpdatedOrderItems?.data, status: true, code: 200 };
     } else {
       return { data: "OrderItem not found", status: false, code: 400 };
@@ -62,10 +62,10 @@ const getOrderItemByOrderId = async (orderId) => {
           as: 'productDetails'
         }
       },
-      { $unwind:{ path: "$productDetails", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$productDetails", preserveNullAndEmptyArrays: true } },
       {
         $addFields: {
-          total_price: { $multiply: ['$productDetails.price', '$quantity'] }
+          total_price: { $multiply: ['$productDetails.discountedPrice', '$quantity'] }
         }
       },
 

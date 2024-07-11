@@ -1,4 +1,5 @@
 const pick = require("../../../utils/pick");
+const { getConfigForCheckout } = require("../../globalConfig/service/globalconfig.service");
 const Order = require("../model");
 const mongoose = require("mongoose");
 
@@ -23,7 +24,8 @@ const getOrderByUser = async (userId) => {
     const orders = await Order.aggregate([
       {
         $match: {
-          userId: userObjectId
+          userId: userObjectId,
+          mode:"order"
         }
       },
       {
@@ -101,8 +103,9 @@ const getOrderByUser = async (userId) => {
           _id: "$_id",
           status: { $first: "$status" },
           mode: { $first: "$mode" },
+          orderType: { $first: "$orderType" },
           totalPayment: { $first: "$totalPayment" },
-          paymentMethod: { $first: "$paymentMethod" },
+          // paymentMethod: { $first: "$paymentMethod" },
           createdAt: { $first: "$createdAt" },
           updatedAt: { $first: "$updatedAt" },
           userDetails: { $first: "$userDetails" },
@@ -125,8 +128,9 @@ const getOrderByUser = async (userId) => {
           _id: 1,
           status: 1,
           mode: 1,
+          orderType:1,
           totalPayment: 1,
-          paymentMethod: 1,
+          // paymentMethod: 1,
           createdAt: 1,
           updatedAt: 1,
           orderItems: 1,
@@ -195,7 +199,74 @@ const getOrderById = async (id) => {
       },
       { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
       { $unwind: { path: "$addressDetails", preserveNullAndEmptyArrays: true } },
-
+      // {
+      //   $unwind: { path: '$orderItemData', preserveNullAndEmptyArrays: true }
+      // },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'orderItemData.productId',
+          foreignField: '_id',
+          as: 'productDetails',
+        },
+      },
+      // {
+      //   $addFields: {
+      //     'orderItemData.productDetails': { $arrayElemAt: ['$productDetails', 0] },
+      //   },
+      // },
+      {
+        $addFields: {
+          orderItemData: {
+            $map: {
+              input: '$orderItemData',
+              as: 'item',
+              in: {
+                $mergeObjects: [
+                  '$$item',
+                  {
+                    productDetails: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: '$productDetails',
+                            as: 'pd',
+                            cond: { $eq: ['$$pd._id', '$$item.productId'] }
+                          }
+                        },
+                        0
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          orderItemData: {
+            $map: {
+              input: '$orderItemData',
+              as: 'item',
+              in: {
+                $mergeObjects: [
+                  '$$item',
+                  {
+                    total_price: {
+                      $multiply: [
+                        '$$item.quantity',
+                        { $ifNull: ['$$item.productDetails.discountedPrice', 0] }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
       {
         $project: {
           _id: 1,
@@ -211,14 +282,34 @@ const getOrderById = async (id) => {
           totalPayment: 1,
           createdAt: 1,
           updatedAt: 1,
-          userData: 1,
+          userDetails: 1,
           prescriptionData: 1,
           addressDetails: 1,
-          orderItemData: 1,
-        },
-      },
+          orderItemData: 1
+        }
+      }
     ]);
-
+    console.log("orders", orders);
+    console.log("orderItemData", orders[0].orderItemData);
+    let totalCartAmount = 0;
+    let cartAmount = 0;
+    const globalConfigData = await getConfigForCheckout();
+    if (globalConfigData) {
+      // console.log("globalConfigData", globalConfigData);
+      const { deliveryCharges, packagingCharges } = globalConfigData?.config[0];
+      totalCartAmount = orders[0].orderItemData.reduce((sum, order) => sum + order.total_price, 0);
+      cartAmount = totalCartAmount;
+      console.log("charges", deliveryCharges, packagingCharges);
+      totalCartAmount += deliveryCharges || 0;
+      totalCartAmount += packagingCharges || 0;
+    }
+    // console.log("carts", orders);
+    orders.forEach(order => {
+      order.totalCartAmount = totalCartAmount;
+      order.cartAmount = cartAmount;
+    });
+    console.log("orders", orders);
+    // await orders.save();
     if (orders && orders.length > 0) {
       return { data: orders, status: true, code: 200 };
     } else {

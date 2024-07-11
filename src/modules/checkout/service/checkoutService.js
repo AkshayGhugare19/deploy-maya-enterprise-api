@@ -1,5 +1,4 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-//const PublicUrl = "http://localhost:3000";
 const PublicUrl = "https://deploy-maya-enterprise-web.vercel.app";
 const Order = require("../../order/model");
 const OrderItem = require("../../orderItem/model");
@@ -121,14 +120,26 @@ const getSessionInfo = async (req, res) => {
       if (!product) {
         return { code: 404, status: false, data: `Product with ID ${productId} not found` };
       }
-      console.log("KKKKK",product.productQuantity , quantity,item)
-      const newProductQuantity = Math.max(product.productQuantity - quantity, 0);
+      console.log("KKKKKK",product.productQuantity , quantity,item)
+      const ORDER = await Order.findById({_id:item.orderId});
+      if(ORDER.status !=="paid"){
+        console.log("DONEtttww",ORDER)
+        const newProductQuantity = Math.max(product.productQuantity - quantity, 0);
         await Product.findByIdAndUpdate(productId, { productQuantity: newProductQuantity });
+      }else{
+        console.log("Elseoooerre",ORDER)
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          session.payment_intent
+        );
+    
+        return { code: 201, status: true, data: paymentIntent };
+      }
+      
     }
 
     await Order.updateOne(
       { _id: orderId },
-      { $set: { stripeSessionId: session.id, mode: orderMode, orderType: orderType } }
+      { $set: { stripeSessionId: session.id, mode: orderMode, orderType: orderType,status:"paid" } }
     );
 
     const paymentIntent = await stripe.paymentIntents.retrieve(
