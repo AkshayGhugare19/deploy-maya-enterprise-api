@@ -9,35 +9,37 @@ const mongoose = require('mongoose');
  * @returns {Promise<User>}
  */
 const sendOtp = async (otpDoc) => {
-const filterQuery = {email:otpDoc.email}
-// const alreadyOtp = Otp.find(filterQuery)
+	const filterQuery = { email: otpDoc.email }
+	// const alreadyOtp = Otp.find(filterQuery)
 
-const specificEmail = otpDoc.email;
-const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+	const specificEmail = otpDoc.email;
+	const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
 
-const result = await Otp.aggregate([
-  {
-    $match: {
-      email: specificEmail,
-      createdAt: { $gte: oneHourAgo },
-    },
-  },
-  {
-    $group: {
-      _id: null,
-      count: { $sum: 1 },
-    },
-  },
-])
+	const result = await Otp.aggregate([
+		{
+			$match: {
+				email: specificEmail,
+				createdAt: { $gte: oneHourAgo },
+			},
+		},
+		{
+			$group: {
+				_id: null,
+				count: { $sum: 1 },
+			},
+		},
+	])
 
-if(result[0]?.count > 2) //while check 3 times otp
-{
-  return { msg: " You have reached the maximum number of resend attempts. Please try after 1 hour ", status: false, code: 400 };
-}
-else{
+	// if (result[0]?.count > 2) //while check 3 times otp
+	// {
+	// 	return { msg: " You have reached the maximum number of resend attempts. Please try after 1 hour ", status: false, code: 400 };
+	// }
+	// else {
+	// 	const response = await Otp.create(otpDoc);
+	// 	return response;
+	// }
 	const response = await Otp.create(otpDoc);
 	return response;
-}
 };
 
 const verifyOtp = async (email, otp) => {

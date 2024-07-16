@@ -18,6 +18,8 @@ const orderItemRoute = require('./orderItem.route')
 const addressRoute = require('./address.route')
 const checkoutRoute = require('./checkout.route')
 const stepperProgressRoute = require('./stepperprogress.route')
+const emailSubscriptionRoute = require('./emailSubscription.route')
+const paymentHistoryRoute = require('./paymentHistory.route')
 
 const { uploadFile, uploadThumbnail } = require('../../utils/fileUpload');
 
@@ -95,6 +97,14 @@ const defaultRoutes = [
   {
     path: '/stepper-progress',
     route: stepperProgressRoute,
+  },
+  {
+    path: '/email-subscribe',
+    route: emailSubscriptionRoute,
+  },
+  {
+    path: '/payment-history',
+    route: paymentHistoryRoute,
   },
 
 ];

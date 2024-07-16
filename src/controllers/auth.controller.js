@@ -19,7 +19,7 @@ const signup = catchAsync(async (req, res) => {
 	try {
 		const { email, password, name, phoneNo } = req.body;
 		const isEmailTaken = await authService.checkEmail(email)
-		const isPhoneNoTaken = await authService.checkEmail(phoneNo)
+		const isPhoneNoTaken = await authService.checkPhoneNo(phoneNo)
 		if (isEmailTaken || isPhoneNoTaken) {
 			sendResponse(res, httpStatus.BAD_REQUEST, null, "Email or Phone Number Already taken");
 			return
@@ -42,7 +42,7 @@ const signup = catchAsync(async (req, res) => {
 		let user = userRes.user;
 		// let generatedOtp = 1234;
 		let generatedOtp = Math.floor(Math.random() * 9000) + 1000;
-		const expires = moment().add(5, 'minutes');
+		const expires = moment().add(1, 'minutes');
 
 		const createOtpdoc = {
 			userId: mongoose.Types.ObjectId(user?.id),

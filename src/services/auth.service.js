@@ -87,7 +87,7 @@ const loginUserWithEmailAndPassword = async (email, phoneNo, password, isAdmin) 
   if (!user) {
     return {
       user: null,
-      msg: phoneNo ?"Phone no not found. Proceed to signup.":"Email not found. Proceed to signup.",
+      msg: phoneNo ? "Phone number not found. Proceed to signup." : "Email not found. Proceed to signup.",
       code: 404,
     };
   }
@@ -134,11 +134,11 @@ const loginUserWithDiscordId = async ({ discordId }) => {
  */
 const adminLoginUserWithEmailAndPassword = async (email, password) => {
   const user = await User.findOne({ email, active: true });
-  console.log("kkk",user)
+  console.log("kkk", user)
   if (!user || !(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }
-  console.log("rrrr",user)
+  console.log("rrrr", user)
   if (user && !adminRoles.includes(user.role)) throw new ApiError(httpStatus.UNAUTHORIZED, 'User is not authorized');
   return user;
 };
@@ -198,7 +198,7 @@ const getCurrentUser = async (token) => {
 const checkEmail = async (email) => {
   return await User.findOne({ email: email, active: true });
 };
-const checkPhoneNo = async (email) => {
+const checkPhoneNo = async (phoneNo) => {
   return await User.findOne({ phoneNo: phoneNo, active: true });
 };
 

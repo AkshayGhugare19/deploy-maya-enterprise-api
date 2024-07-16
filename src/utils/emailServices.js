@@ -1,6 +1,7 @@
 const sendGridMail = require('@sendgrid/mail');
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
 const SEND_GRID_FROM = process.env.SENDGRID_FROM
+const WEB_URL = "https://deploy-maya-enterprise-web.vercel.app"
 
 /**
  * @param {object} brand brand data
@@ -952,7 +953,188 @@ async function sendEmail(templateObj) {
   }
 }
 
+const emailTemplate = (email) => `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+          background-color: #007bff;
+          color: #ffffff;
+          padding: 10px 0;
+          text-align: center;
+          border-radius: 8px 8px 0 0;
+        }
+        .content {
+          padding: 20px;
+        }
+        .footer {
+          text-align: center;
+          padding: 10px;
+          font-size: 12px;
+          color: #888888;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Thank You for Subscribing!</h1>
+        </div>
+        <div class="content">
+          <p>Hi,</p>
+          <p>Thank you for subscribing to our newsletter. We are excited to have you on board!</p>
+          <p>You will receive updates from us at <strong>${email}</strong>.</p>
+          <p>Best regards,</p>
+          <p>The Team</p>
+        </div>
+        <div class="footer">
+          <p>If you did not subscribe to this newsletter, please ignore this email or <a href="#">unsubscribe</a>.</p>
+        </div>
+      </div>
+    </body>
+  </html>
+`;
+
+const emailSubscribedTemplate = ({ to, email,userId }) => {
+  console.log("email =========", to);
+
+  let templateObj = {
+    to,
+    from: SEND_GRID_FROM,
+    subject: `Email Subscribed`,
+    html: `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #000000;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      color: #ffffff;
+      padding: 10px 0;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .content {
+      padding: 20px;
+      color: #ffffff;
+    }
+    .footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 12px;
+      color: #888888;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .social-icons {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .social-icons img {
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center">
+        <table class="container" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="center">
+              <img src="https://assets.unlayer.com/projects/0/1718781521002-MAYA%20ENTERPRISE.png" alt="Maya Enterprise" title="Maya Enterprise" style="max-width: 179.2px;" />
+            </td>
+          </tr>
+          <tr>
+            <td class="header">
+              <h1>Thank You for Subscribing!</h1>
+            </td>
+          </tr>
+          <tr>
+            <td class="content">
+              <p>Hi,</p>
+              <p>Thank you for subscribing to our newsletter. We are excited to have you on board!</p>
+              <p>You will receive updates from us at <strong>${email}</strong>.</p>
+              <p>Best regards,</p>
+              <p>The Team</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="footer">
+              <p>If you did not subscribe to this newsletter, please ignore this email or <a href=${WEB_URL}/email-subscribe/${userId}>unsubscribe</a>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="social-icons">
+              <a href="https://www.facebook.com/artyfactmetaverse" target="_blank">
+                <img src="https://cdn.tools.unlayer.com/social/icons/circle-black/facebook.png" alt="Facebook" title="Facebook" width="32" />
+              </a>
+              <a href="https://www.instagram.com/artyfact.game" target="_blank">
+                <img src="https://cdn.tools.unlayer.com/social/icons/circle-black/instagram.png" alt="Instagram" title="Instagram" width="32" />
+              </a>
+              <a href="mailto:office@artyfact.game" target="_blank">
+                <img src="https://cdn.tools.unlayer.com/social/icons/circle-black/email.png" alt="Email" title="Email" width="32" />
+              </a>
+              <a href="https://twitter.com/artyfact_game" target="_blank">
+                <img src="https://cdn.tools.unlayer.com/social/icons/circle-black/twitter.png" alt="Twitter" title="Twitter" width="32" />
+              </a>
+              <a href="https://discord.com/invite/artyfact" target="_blank">
+                <img src="https://cdn.tools.unlayer.com/social/icons/circle-black/discord.png" alt="Discord" title="Discord" width="32" />
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  };
+
+  sendEmail(templateObj);
+};
+
+
+
+
+
+
+module.exports = emailTemplate;
+
+
 module.exports = {
   signUpOtpEmail,
   forgotOtpEmail,
+  emailSubscribedTemplate
 };
