@@ -74,6 +74,53 @@ const getAllSubscriptions = async (page, limit, name, email) => {
         return { status: false, code: 500, message: "Error retrieving subscriptions.", error: error.message };
     }
 };
+const getAllUnSubscriber = async (page, limit, name, email) => {
+    try {
+        let searchCriteria = { isActive: false };
+        let pipeline = [
+            { $match: searchCriteria },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            { $unwind: '$userDetails' },
+        ];
+
+        if (name) {
+            pipeline.push({
+                $match: {
+                    'userDetails.name': { $regex: name, $options: 'i' }
+                }
+            });
+        }
+
+        if (email) {
+            pipeline.push({
+                $match: {
+                    'userDetails.email': { $regex: email, $options: 'i' }
+                }
+            });
+        }
+
+        pipeline.push(
+            { $skip: (page - 1) * limit },
+            { $limit: parseInt(limit) }
+        );
+
+        const emailSubscriptions = await EmailSubscription.aggregate(pipeline);
+
+        if (!emailSubscriptions || emailSubscriptions.length === 0) {
+            return { status: false, code: 404, message: "No active email subscriptions found.", data: null };
+        }
+        return { status: true, code: 200, message: "Active email subscriptions retrieved successfully.", data: emailSubscriptions };
+    } catch (error) {
+        return { status: false, code: 500, message: "Error retrieving subscriptions.", error: error.message };
+    }
+};
 
 const getSubscriptionByUserId = async (id) => {
     try {
@@ -147,6 +194,7 @@ const updateSubscriptionByUserId = async (id, updateFields) => {
 module.exports = {
     addEmailSubscription,
     getAllSubscriptions,
+    getAllUnSubscriber,
     getSubscriptionByUserId,
     updateSubscriptionByUserId
    

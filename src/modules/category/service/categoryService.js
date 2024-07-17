@@ -4,8 +4,12 @@ const pick = require("../../../utils/pick");
 
 const addCategory = async (body) => {
   try {
+    const { name } = body;
+    const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') },active: true });
+    if (existingCategory) {
+      return { data: "Category name already exists", status: false, code: 400 };
+    }
     const addResult = await Category.create(body);
-
     if (addResult) {
       return { data: addResult, status: true, code: 201 };
     } else {
@@ -16,10 +20,11 @@ const addCategory = async (body) => {
   }
 };
 
+
 const getCategory = async () => {
   try {
     let filterQuery = { active: true };
-    const category = await Category.find(filterQuery).populate('categoryId');
+    const category = await Category.find(filterQuery).sort({ createdAt: -1 }).populate('categoryId');
     console.log("category",category);
     if (category) {
       return { data: category, status: true, code: 200 };

@@ -42,7 +42,7 @@ const signup = catchAsync(async (req, res) => {
 		let user = userRes.user;
 		// let generatedOtp = 1234;
 		let generatedOtp = Math.floor(Math.random() * 9000) + 1000;
-		const expires = moment().add(1, 'minutes');
+		const expires = moment().add(5, 'minutes');
 
 		const createOtpdoc = {
 			userId: mongoose.Types.ObjectId(user?.id),

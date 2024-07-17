@@ -30,16 +30,16 @@ const sendOtp = async (otpDoc) => {
 		},
 	])
 
-	// if (result[0]?.count > 2) //while check 3 times otp
-	// {
-	// 	return { msg: " You have reached the maximum number of resend attempts. Please try after 1 hour ", status: false, code: 400 };
-	// }
-	// else {
-	// 	const response = await Otp.create(otpDoc);
-	// 	return response;
-	// }
-	const response = await Otp.create(otpDoc);
-	return response;
+	if (result[0]?.count > 2) //while check 3 times otp
+	{
+		return { msg: " You have reached the maximum number of resend attempts. Please try after 1 hour ", status: false, code: 400 };
+	}
+	else {
+		const response = await Otp.create(otpDoc);
+		return response;
+	}
+	// const response = await Otp.create(otpDoc);
+	// return response;
 };
 
 const verifyOtp = async (email, otp) => {

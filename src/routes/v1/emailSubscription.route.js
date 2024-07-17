@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/add',validate(emailSubscriptionValidation.addEmailSubscription), emailSubscriptionController.addEmailSubscription);
 router.put('/update-by-user/:id', emailSubscriptionController.updateSubscriptionByUserId);
 router.post('/get-all', emailSubscriptionController.getAllSubscriptions);
+router.post('/get-all/unsubscriber', emailSubscriptionController.getAllUnSubscriber);
 router.get('/get-by-user/:id', emailSubscriptionController.getSubscriptionByUserId);
 
 module.exports = router;

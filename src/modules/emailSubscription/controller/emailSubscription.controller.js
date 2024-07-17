@@ -37,6 +37,25 @@ const getAllSubscriptions = catchAsync(async (req, res) => {
     }
 });
 
+const getAllUnSubscriber = catchAsync(async (req, res) => {
+    try {
+        console.log("Get Un-Subscribe All");
+
+        // Get body parameters for pagination and search
+        const { page = 1, limit = 10, name, email } = req.body;
+
+        const emailSubscriptionRes = await emailSubscriptionService.getAllUnSubscriber(page, limit, name, email);
+        if (!emailSubscriptionRes.status) {
+            return sendResponse(res, emailSubscriptionRes.code, null, "Subscribe not found");
+        }
+        const emailSubscribe = emailSubscriptionRes.data;
+        sendResponse(res, httpStatus.OK, { data: emailSubscribe, msg: "Subscribe retrieved successfully" }, null);
+    } catch (error) {
+        console.error("Error in getting emailSubscribe information", error);
+        sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, error.message);
+    }
+});
+
 const getSubscriptionByUserId = catchAsync(async (req, res) => {
     try {
         console.log("Get Subscribe By User Id");
@@ -88,6 +107,7 @@ const updateSubscriptionByUserId = catchAsync(async (req, res) => {
 module.exports = {
     addEmailSubscription,
     getAllSubscriptions,
+    getAllUnSubscriber,
     getSubscriptionByUserId,
     updateSubscriptionByUserId
 };

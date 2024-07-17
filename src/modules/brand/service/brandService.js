@@ -4,6 +4,11 @@ const pick = require("../../../utils/pick");
 
 const addBrand = async (body) => {
   try {
+    const { name } = body;
+    const existingBrand = await Brand.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+    if (existingBrand) {
+      return { data: "Brand name already exists", status: false, code: 400 };
+    }
     const addResult = await Brand.create(body);
 
     if (addResult) {
@@ -12,14 +17,18 @@ const addBrand = async (body) => {
       return { data: "Brand not created", status: false, code: 400 };
     }
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.name === 1) {
+      return { data: "Duplicate brand name", status: false, code: 400 };
+    }
     return { data: error.message, status: false, code: 500 };
   }
 };
 
+
 const getBrand = async () => {
   try {
     let filterQuery = { active: true };
-    const brand = await Brand.find(filterQuery).populate('categoryId');;
+    const brand = await Brand.find(filterQuery).sort({ createdAt: -1 }).populate('categoryId');;
     if (brand) {
       return { data: brand, status: true, code: 200 };
     } else {
