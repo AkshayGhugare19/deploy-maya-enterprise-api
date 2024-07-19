@@ -50,9 +50,7 @@ const getAllprescriptionImage = async () => {
 
 const getPrescriptionByUserId = async (userId) => {
     try {
-        console.log(userId);
         let userObjectId = mongoose.Types.ObjectId(userId);
-        console.log("userObjectId", userObjectId);
         const prescriptions = await prescriptionModel.aggregate([
             {
                 $match: { userId: userObjectId, isActive: true }
@@ -70,13 +68,14 @@ const getPrescriptionByUserId = async (userId) => {
                     path: '$addressDetails',
                     preserveNullAndEmptyArrays: true
                 }
+            },
+            {
+                $sort: { createdAt: -1 }
             }
         ]);
-        console.log('Prescriptions found 1:', prescriptions);
         if (!prescriptions || prescriptions.length === 0) {
             return { status: false, code: 400, data: [] };
         }
-        console.log('Prescriptions found 2:', prescriptions);
         return { status: true, code: 200, data: prescriptions };
     } catch (error) {
         return { status: false, code: 500, data: null, error: error.message };

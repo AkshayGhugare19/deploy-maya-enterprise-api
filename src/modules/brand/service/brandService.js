@@ -25,12 +25,28 @@ const addBrand = async (body) => {
 };
 
 
-const getBrand = async () => {
+const getBrand = async (page = 1, limit = 10, searchQuery = '') => {
   try {
+    const length = parseInt(limit, 10) > 0 ? parseInt(limit, 10) : 10;
+    const start = parseInt(page, 10) > 0 ? parseInt(page, 10) : 1;
+    const skip = (start - 1) * length;
+
     let filterQuery = { active: true };
-    const brand = await Brand.find(filterQuery).sort({ createdAt: -1 }).populate('categoryId');;
-    if (brand) {
-      return { data: brand, status: true, code: 200 };
+    if (searchQuery) {
+      filterQuery.name = { $regex: searchQuery, $options: 'i' };
+    }
+
+    const brands = await Brand.find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(length)
+      .populate('categoryId');
+
+    const totalResults = await Brand.countDocuments(filterQuery);
+    const totalPages = Math.ceil(totalResults / length);
+
+    if (brands.length > 0) {
+      return { data: { brands, totalResults, totalPages, page: start, limit: length }, status: true, code: 200 };
     } else {
       return { data: "Brand not found", status: false, code: 400 };
     }
@@ -38,6 +54,7 @@ const getBrand = async () => {
     return { data: error.message, status: false, code: 500 };
   }
 };
+
 const getBrandById = async (id) => {
   try {
     let filterQuery = { _id: mongoose.Types.ObjectId(id)};

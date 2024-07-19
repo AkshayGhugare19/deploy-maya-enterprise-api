@@ -4,22 +4,30 @@ const { objectId } = require('../../../validations/custom.validation');
 const EmailSubscription = require('../model');
 
 
-const addEmailSubscription = async (emailSubscriptionBody) => {
+const addEmailSubscription = async (req, emailSubscriptionBody) => {
     try {
+        const loggedUserEmail = req.user.email;
         const { email, isEmailSubscribed } = emailSubscriptionBody;
+
+        if (loggedUserEmail !== email) {
+            return { code: 401, status: false, message: "Please subscribe  with the correct email." };
+        }
+
         const user = await User.findOne({ email: email });
         if (!user) {
             return { code: 404, status: false, message: "Email not found." };
         }
+
         const existingSubscription = await EmailSubscription.findOne({ email: email, isEmailSubscribed: isEmailSubscribed });
         if (existingSubscription) {
             return { code: 400, status: false, message: "Email is already subscribed." };
         }
 
         const emailSubscriptionRes = await EmailSubscription.create(emailSubscriptionBody);
-        if(emailSubscriptionRes?.email){
-            emailSubscribedTemplate({ to: emailSubscriptionRes?.email, email: emailSubscriptionRes?.email, userId: emailSubscriptionRes?.userId})
+        if (emailSubscriptionRes?.email) {
+            emailSubscribedTemplate({ to: emailSubscriptionRes?.email, email: emailSubscriptionRes?.email, userId: emailSubscriptionRes?.userId });
         }
+
         return { code: 201, status: true, emailSubscriptionRes, message: "Subscribed successfully." };
 
     } catch (error) {
@@ -27,7 +35,8 @@ const addEmailSubscription = async (emailSubscriptionBody) => {
     }
 };
 
-const getAllSubscriptions = async (page, limit, name, email) => {
+
+const getAllSubscriptions = async (page, limit, searchQuery) => {
     try {
         let searchCriteria = { isActive: true };
         let pipeline = [
@@ -43,18 +52,13 @@ const getAllSubscriptions = async (page, limit, name, email) => {
             { $unwind: '$userDetails' },
         ];
 
-        if (name) {
+        if (searchQuery) {
             pipeline.push({
                 $match: {
-                    'userDetails.name': { $regex: name, $options: 'i' }
-                }
-            });
-        }
-
-        if (email) {
-            pipeline.push({
-                $match: {
-                    'userDetails.email': { $regex: email, $options: 'i' }
+                    $or: [
+                        { 'userDetails.name': { $regex: searchQuery, $options: 'i' } },
+                        { 'userDetails.email': { $regex: searchQuery, $options: 'i' } }
+                    ]
                 }
             });
         }

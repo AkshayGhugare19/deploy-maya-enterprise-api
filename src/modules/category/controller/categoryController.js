@@ -21,17 +21,15 @@ const addCategory = catchAsync(async (req, res) => {
 });
 
 const getCategory = catchAsync(async (req, res) => {
-  const category = await categoryService.getCategory();
+  const { page, limit, searchQuery } = req.body;
+  const category = await categoryService.getCategory(page, limit, searchQuery);
   if (category.status) {
     sendResponse(res, httpStatus.OK, category.data, null);
   } else {
-    if (category.code == 400) {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, category.data);
-    } else if (category.code == 500) {
-      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, category.data);
-    } else {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, category.data);
-    }
+    const statusCode = category.code === 400 ? httpStatus.BAD_REQUEST :
+                       category.code === 500 ? httpStatus.INTERNAL_SERVER_ERROR :
+                       httpStatus.BAD_REQUEST;
+    sendResponse(res, statusCode, null, category.data);
   }
 });
 

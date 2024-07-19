@@ -26,11 +26,9 @@ const addPaymentHistory = catchAsync(async (req, res) => {
 const getAllPaymentHistory = catchAsync(async (req, res) => {
     try {
         console.log("Get Subscription All");
+        const { page = 1, limit = 10, searchQuery } = req.body;
 
-        // Get body parameters for pagination and search
-        const { page = 1, limit = 10, name, email } = req.body;
-
-        const emailSubscriptionRes = await paymentHistoryService.getAllPaymentHistory(page, limit, name, email);
+        const emailSubscriptionRes = await paymentHistoryService.getAllPaymentHistory(page, limit, searchQuery);
         if (!emailSubscriptionRes.status) {
             return sendResponse(res, emailSubscriptionRes.code, null, "Subscription not found");
         }
@@ -41,6 +39,7 @@ const getAllPaymentHistory = catchAsync(async (req, res) => {
         sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, error.message);
     }
 });
+
 
 // const getSubscriptionByUserId = catchAsync(async (req, res) => {
 //     try {

@@ -21,19 +21,18 @@ const addBrand = catchAsync(async (req, res) => {
 });
 
 const getBrand = catchAsync(async (req, res) => {
-  const brand = await brandService.getBrand();
+  const { page, limit, searchQuery } = req.body;
+  const brand = await brandService.getBrand(page, limit, searchQuery);
   if (brand.status) {
     sendResponse(res, httpStatus.OK, brand.data, null);
   } else {
-    if (brand.code == 400) {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, brand.data);
-    } else if (brand.code == 500) {
-      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, brand.data);
-    } else {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, brand.data);
-    }
+    const statusCode = brand.code === 400 ? httpStatus.BAD_REQUEST :
+                       brand.code === 500 ? httpStatus.INTERNAL_SERVER_ERROR :
+                       httpStatus.BAD_REQUEST;
+    sendResponse(res, statusCode, null, brand.data);
   }
 });
+
 const getBrandById = catchAsync(async (req, res) => {
   const { id } = await pick(req.params, ['id'])
   const brand = await brandService.getBrandById(id);

@@ -8,8 +8,11 @@ const OrderItem = require("../../orderItem/model");
 
 const addProduct = async (productBody) => {
     try {
-        const { name } = productBody;
-        console.log("rrr",productBody)
+        const { name, price, discountedPrice } = productBody;
+        if (discountedPrice >= price) {
+            return { code: 400, status: false, data: 'Discounted price should be less than the original price' };
+        }
+        console.log("rrr", productBody)
         const existingProduct = await Product.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
         if (existingProduct) {
             return { code: 409, status: false, data: 'Product with this name already exists' };
@@ -33,22 +36,21 @@ const addProductInformation = async (productInfoBody) => {
         return { data: error.message, status: false, code: 500 };
     }
 };
-const fetchAllProducts = async (sortIndex, page = 1, limit = 10) => {
+const fetchAllProducts = async (sortIndex = '', page = 1, limit = 10) => {
     try {
         let query = {
             isActive: true
         };
 
         if (sortIndex) {
-            query = { name: { $regex: `^${sortIndex}`, $options: 'i' } };  // Case-insensitive match
+            query.name = { $regex: sortIndex, $options: 'i' };  // Case-insensitive match
         }
 
         // Calculate the number of documents to skip
         const skip = (page - 1) * limit;
 
         // Fetch products with pagination
-        const products = await Product.find({ ...query, isActive: true }).sort({ _id: -1 }).skip(skip).limit(limit);
-
+        const products = await Product.find(query).sort({ _id: -1 }).skip(skip).limit(limit);
         // Fetch the total number of documents that match the query
         const totalProducts = await Product.countDocuments(query);
 
@@ -70,6 +72,7 @@ const fetchAllProducts = async (sortIndex, page = 1, limit = 10) => {
         return { data: error.message, status: false, code: 500 };
     }
 };
+
 
 const updateProductInformation = async (productInfoId, updateFields) => {
     try {
@@ -132,11 +135,41 @@ const getProductInformationByProductId = async (id) => {
     }
 };
 
-const fetchProductsByBrandId = async (id) => {
+const fetchProductsByBrandId = async (id, page = 1, limit = 10, sortIndex = '',) => {
     try {
         console.log("id", id);
-        const product = await Product.find({ brandId: objectId(id) });
-        return { code: 201, status: true, product };
+        // const product = await Product.find({ brandId: objectId(id) });
+        let query = {
+            isActive: true,
+            brandId: objectId(id)
+        };
+
+        if (sortIndex) {
+            query.name = { $regex: sortIndex, $options: 'i' };  // Case-insensitive match
+        }
+
+        // Calculate the number of documents to skip
+        const skip = (page - 1) * limit;
+        console.log(query);
+        // Fetch products with pagination
+        const products = await Product.find(query).sort({ _id: -1 }).skip(skip).limit(limit);
+        // Fetch the total number of documents that match the query
+        const totalProducts = await Product.countDocuments(query);
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalProducts / limit);
+        console.log('products', products);
+        return {
+            code: 201,
+            status: true,
+            products,
+            pagination: {
+                totalProducts,
+                totalPages,
+                currentPage: page,
+                pageSize: limit
+            }
+        };
     } catch (error) {
         return { data: error.message, status: false, code: 500 };
     }
@@ -366,20 +399,20 @@ const fetchProductsOfNoOrderItems = async (id) => {
 const addFieldToAllProducts = async () => {
     try {
         const updateResult = await Product.updateMany({}, { $set: { ["productQuantity"]: 20 } });
-        if(updateResult){
+        if (updateResult) {
             return {
                 status: true,
                 code: 200,
                 message: `Added  documents.`
             };
-        }else{
+        } else {
             return {
                 status: false,
                 code: 400,
                 message: `Something went wrong.`
             };
         }
-        
+
     } catch (error) {
         return {
             status: false,

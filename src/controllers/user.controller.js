@@ -136,6 +136,28 @@ const getUserIpDetails = catchAsync(async (req, res) => {
   }
 })
 
+const getAllUsersWithPagination = catchAsync(async (req, res) => {
+  try {
+      const { searchQuery, page, limit } = req.body;
+      const userResult = await userService.getAllUsersWithPagination(searchQuery, page, limit);
+
+      if (!userResult.status) {
+          return sendResponse(res, userResult.code, null, "Users not found");
+      }
+
+      const users = userResult.users;
+      const pagination = userResult.pagination;
+      sendResponse(res, httpStatus.CREATED, { users, pagination, message: "All users fetched successfully" }, null);
+  } catch (error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+          code: httpStatus.INTERNAL_SERVER_ERROR,
+          status: false,
+          message: 'Internal server error',
+      });
+  }
+});
+
+
 module.exports = {
   getUsers,
   getUserById,
@@ -144,5 +166,6 @@ module.exports = {
   checkWalletExisted,
   updateProfile,
   deleteUser,
-  getUserIpDetails
+  getUserIpDetails,
+  getAllUsersWithPagination
 }

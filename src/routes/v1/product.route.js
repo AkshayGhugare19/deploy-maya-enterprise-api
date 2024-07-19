@@ -15,7 +15,7 @@ router.get('/get-product-information/:id', validate(productValidation.getProduct
 router.get('/get-product-information-by-product/:id', validate(productValidation.getProductInformationByProductId), productController.getProductInformationByProductIdController);
 router.post('/getAllProducts', productController.getAllProducts);
 router.post('/getAllProductsOfNoOrderItem', productController.getProductsOfNoOredrItems);
-router.get('/getProductsByBrandId/:id', productController.getProductsByBrandId);
+router.post('/getProductsByBrandId/:id', productController.getProductsByBrandId);
 // router.get('/getProductCategoriesById/:id', productController.getProductCategoriesById);
 router.get('/getTopRatedProducts', productController.getTopRatedProducts);
 router.get('/getProductsBasedOnCategories', productController.getProductsBasedOnCategories);
@@ -24,10 +24,10 @@ router.put('/update-discounted-price/:id', auth('manageProducts'), productContro
 router.get('/get-product-details-information-by-product/:id', productController.getProductDetailsAndInformationByProductId);
 
 // for admin
-router.put('/delete-product/:id',  productController.deleteProductById);
-router.get('/get-product/:id',  productController.getProductById);
-router.put('/update-product/:id',productController.updateProductById);
-router.put('/update-product-field',productController.addFieldToAllProducts);
+router.put('/delete-product/:id', productController.deleteProductById);
+router.get('/get-product/:id', productController.getProductById);
+router.put('/update-product/:id', productController.updateProductById);
+router.put('/update-product-field', productController.addFieldToAllProducts);
 
 
 module.exports = router;

@@ -7,6 +7,12 @@ const addOrderItem = async (body) => {
   try {
 
     const { orderId, productId, quantity } = body;
+
+    const existingOrderItem = await OrderItem.findOne({ orderId, productId });
+    if (existingOrderItem) {
+      return { data: "Product already added to this order", status: false, code: 400 };
+    }
+
     const product = await Product.findById({ _id: productId })
     console.log("eee", product)
     if (product?.productQuantity >= quantity) {

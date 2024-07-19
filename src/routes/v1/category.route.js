@@ -9,7 +9,7 @@ router.post(
   validate(categoryValidation.add),
   categoryController.addCategory
 );
-router.get("/all", categoryController.getCategory);
+router.post("/all", categoryController.getCategory);
 router.put(
   "/update/:id",
   validate(categoryValidation.update),

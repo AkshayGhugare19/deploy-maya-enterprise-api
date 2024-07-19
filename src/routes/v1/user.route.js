@@ -20,6 +20,6 @@ router.put('/delete-profile/:id', validate(uservalidation.deleteProfile), userCo
 
 router.post('/update-user', auth(), validate(uservalidation.updateUser), userController.updateUser)
 
-
+router.post('/get-all-users-with-pagination',userController.getAllUsersWithPagination)
 module.exports = router;
 

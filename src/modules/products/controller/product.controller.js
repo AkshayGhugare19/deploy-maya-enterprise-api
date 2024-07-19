@@ -4,16 +4,16 @@ const { sendResponse } = require('../../../utils/responseHandler');
 const productService = require('../service/product.service');
 const pick = require('../../../utils/pick');
 const addProductController = catchAsync(async (req, res) => {
-    console.log('asdfasdfsdfsdfsdfsdf',req?.body)
+    console.log('asdfasdfsdfsdfsdfsdf', req?.body)
     try {
-        const { name, price, bannerImg, images, brandId, isPrescription, avgRating,discountedPrice,           
-            marketer, saltComposition, origin, categoryId, stripCapsuleQty,productQuantity } = req?.body;
-        
+        const { name, price, bannerImg, images, brandId, isPrescription, avgRating, discountedPrice,
+            marketer, saltComposition, origin, categoryId, stripCapsuleQty, productQuantity } = req?.body;
+
 
         let productObj = {
             name,
             isPrescription,
-            avgRating,discountedPrice,            
+            avgRating, discountedPrice,
             marketer, saltComposition, origin,
             price,
             bannerImg,
@@ -57,15 +57,19 @@ const getAllProducts = catchAsync(async (req, res) => {
         });
     }
 });
+
+
 const getProductsByBrandId = catchAsync(async (req, res) => {
     try {
         const { id } = await pick(req.params, ['id'])
-        const productRes = await productService.fetchProductsByBrandId(id);
+        const { page, limit, sortIndex } = req.body;
+        const productRes = await productService.fetchProductsByBrandId(id, page, limit, sortIndex);
         if (!productRes.status) {
             return sendResponse(res, productRes.code, null, "Products not found");
         }
-        const product = productRes.product;
-        sendResponse(res, httpStatus.CREATED, { product, msg: "Products by Brand id Fetched successfully" }, null)
+        const product = productRes.products;
+        const pagination = productRes.pagination;
+        sendResponse(res, httpStatus.CREATED, { product, pagination, msg: "Products by Brand id Fetched successfully" }, null)
     } catch (error) {
         sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, { msg: error, code: httpStatus.INTERNAL_SERVER_ERROR, status: false }, null)
     }

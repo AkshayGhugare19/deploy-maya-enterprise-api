@@ -22,10 +22,10 @@ const addPaymentHistory = async (paymentHistoryBody) => {
 };
 
 
-const getAllPaymentHistory = async (page, limit, name, email) => {
+const getAllPaymentHistory = async (page = 1, limit = 10, searchQuery = '') => {
     try {
-        let searchCriteria = { isActive: true };
-        let pipeline = [
+        const searchCriteria = { isActive: true };
+        const pipeline = [
             { $match: searchCriteria },
             {
                 $lookup: {
@@ -38,37 +38,47 @@ const getAllPaymentHistory = async (page, limit, name, email) => {
             { $unwind: '$userDetails' },
         ];
 
-        if (name) {
+        if (searchQuery) {
             pipeline.push({
                 $match: {
-                    'userDetails.name': { $regex: name, $options: 'i' }
-                }
-            });
-        }
-
-        if (email) {
-            pipeline.push({
-                $match: {
-                    'userDetails.email': { $regex: email, $options: 'i' }
+                    $or: [
+                        { 'userDetails.name': { $regex: searchQuery, $options: 'i' } },
+                        { 'userDetails.email': { $regex: searchQuery, $options: 'i' } }
+                    ]
                 }
             });
         }
 
         pipeline.push(
             { $skip: (page - 1) * limit },
-            { $limit: parseInt(limit) }
+            { $limit: parseInt(limit, 10) }
         );
 
         const paymentHistory = await PaymentHistory.aggregate(pipeline);
+        const totalResults = await PaymentHistory.countDocuments(searchCriteria);
+        const totalPages = Math.ceil(totalResults / limit);
 
         if (!paymentHistory || paymentHistory.length === 0) {
             return { status: false, code: 404, message: "No active email subscriptions found.", data: null };
         }
-        return { status: true, code: 200, message: "Active email subscriptions retrieved successfully.", data: paymentHistory };
+        return {
+            status: true,
+            code: 200,
+            message: "Active email subscriptions retrieved successfully.",
+            data: {
+                data: paymentHistory,
+                totalResults,
+                totalPages,
+                page,
+                limit
+            }
+        };
     } catch (error) {
         return { status: false, code: 500, message: "Error retrieving subscriptions.", error: error.message };
     }
 };
+
+
 
 // const getSubscriptionByUserId = async (id) => {
 //     try {

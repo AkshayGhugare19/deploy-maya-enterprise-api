@@ -21,13 +21,28 @@ const addCategory = async (body) => {
 };
 
 
-const getCategory = async () => {
+const getCategory = async (page = 1, limit = 10, searchQuery = '') => {
   try {
+    const length = parseInt(limit, 10) > 0 ? parseInt(limit, 10) : 10;
+    const start = parseInt(page, 10) > 0 ? parseInt(page, 10) : 1;
+    const skip = (start - 1) * length;
+
     let filterQuery = { active: true };
-    const category = await Category.find(filterQuery).sort({ createdAt: -1 }).populate('categoryId');
-    console.log("category",category);
-    if (category) {
-      return { data: category, status: true, code: 200 };
+    if (searchQuery) {
+      filterQuery.name = { $regex: searchQuery, $options: 'i' };
+    }
+
+    const categories = await Category.find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(length)
+      .populate('categoryId');
+
+    const totalResults = await Category.countDocuments(filterQuery);
+    const totalPages = Math.ceil(totalResults / length);
+
+    if (categories.length > 0) {
+      return { data: { categories, totalResults, totalPages, page: start, limit: length }, status: true, code: 200 };
     } else {
       return { data: "Category not found", status: false, code: 400 };
     }
@@ -35,6 +50,7 @@ const getCategory = async () => {
     return { data: error.message, status: false, code: 500 };
   }
 };
+
 
 const updateCategory = async (req, res) => {
   const { id } = await pick(req.params, ['id'])

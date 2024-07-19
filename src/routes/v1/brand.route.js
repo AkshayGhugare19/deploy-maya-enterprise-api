@@ -9,7 +9,7 @@ router.post(
   validate(brandValidation.add),
   brandController.addBrand
 );
-router.get("/all", brandController.getBrand);
+router.post("/all", brandController.getBrand);
 router.get("/:id", validate(brandValidation.getBrandById), brandController.getBrandById);
 router.get("/get-by-category/:categoryId", validate(brandValidation.getBrandsByCategoryId), brandController.getBrandsByCategoryId);
 router.put(

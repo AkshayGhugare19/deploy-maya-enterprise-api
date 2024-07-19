@@ -21,20 +21,23 @@ const addOrder = catchAsync(async (req, res) => {
 });
 
 const getOrderByUser = catchAsync(async (req, res) => {
-  const { userId } = await pick(req.params, ['userId']);
-  const order = await orderService.getOrderByUser(userId);
+  const { userId } = req.params;
+  const { page, limit, searchQuery } = req.body;
+
+  const order = await orderService.getOrderByUser(userId, page, limit, searchQuery);
   if (order.status) {
     sendResponse(res, httpStatus.OK, order.data, null);
   } else {
-    if (order.code == 400) {
+    if (order.code === 400) {
       sendResponse(res, httpStatus.BAD_REQUEST, null, order.data);
-    } else if (order.code == 500) {
-      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, order.data);
+    } else if (order.code === 404) {
+      sendResponse(res, httpStatus.NOT_FOUND, null, order.data);
     } else {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, order.data);
+      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, order.data);
     }
   }
 });
+
 const getOrderById = catchAsync(async (req, res) => {
   const { id } = await pick(req.params, ['id']);
   const order = await orderService.getOrderById(id);
@@ -68,64 +71,57 @@ const updateOrder = catchAsync(async (req, res) => {
 });
 
 const getAllOrders = catchAsync(async (req, res) => {
-  const { page, limit } = req.body
+  const { page, limit, searchQuery } = req.body;
 
-  const list = await orderService.getAllOrders(page, limit);
+  const list = await orderService.getAllOrders(page, limit, searchQuery);
   if (list.status) {
-    sendResponse(res, httpStatus.OK, list, null);
+      sendResponse(res, httpStatus.OK, list, null);
   } else {
-    if (list.code == 400) {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, list.data)
-    }
-    else if (list.code == 500) {
-      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, list.data)
-    }
-    else {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, list.data);
-    }
+      if (list.code === 400) {
+          sendResponse(res, httpStatus.BAD_REQUEST, null, list.data);
+      } else if (list.code === 500) {
+          sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, list.data);
+      } else {
+          sendResponse(res, httpStatus.BAD_REQUEST, null, list.data);
+      }
   }
 });
+
 
 const getAllOrdersEnquiries = catchAsync(async (req, res) => {
-  const { page, limit } = req.body
+  const { page, limit, searchQuery } = req.body;
 
-  const list = await orderService.getAllOrdersEnquiries(page, limit);
+  const list = await orderService.getAllOrdersEnquiries(page, limit, searchQuery);
   if (list.status) {
     sendResponse(res, httpStatus.OK, list, null);
   } else {
-    if (list.code == 400) {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, list.data)
-    }
-    else if (list.code == 500) {
-      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, list.data)
-    }
-    else {
+    if (list.code === 400) {
+      sendResponse(res, httpStatus.BAD_REQUEST, null, list.data);
+    } else if (list.code === 500) {
+      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, list.data);
+    } else {
       sendResponse(res, httpStatus.BAD_REQUEST, null, list.data);
     }
   }
 });
+
 const getAllUserEnquiries = catchAsync(async (req, res) => {
-  const { page, limit } = req.body
-  const { userId } = await pick(req.params, ['userId']);
-  if (!userId) {
-    sendResponse(res, httpStatus.BAD_REQUEST, null, { msg: "User Id Not Found" })
-  }
-  console.log("userId", userId);
-  const list = await orderService.getAllUserEnquiries(page, limit, userId);
-  if (list.status) {
-    sendResponse(res, httpStatus.OK, list, null);
-  } else {
-    if (list.code == 400) {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, list.data)
+    const { page, limit, searchQuery } = req.body;
+    const { userId } = req.params;
+
+    if (!userId) {
+        return sendResponse(res, httpStatus.BAD_REQUEST, null, "User ID not found");
     }
-    else if (list.code == 500) {
-      sendResponse(res, httpStatus.INTERNAL_SERVER_ERROR, null, list.data)
+
+    const list = await orderService.getAllUserEnquiries(page, limit, userId, searchQuery);
+    if (list.status) {
+        sendResponse(res, httpStatus.OK, list.data, null);
+    } else {
+        const status = list.code === 400 ? httpStatus.BAD_REQUEST : httpStatus.INTERNAL_SERVER_ERROR;
+        sendResponse(res, status, null, list.data);
     }
-    else {
-      sendResponse(res, httpStatus.BAD_REQUEST, null, list.data);
-    }
-  }
 });
+
 
 module.exports = {
   addOrder,

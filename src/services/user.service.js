@@ -189,6 +189,47 @@ const fetchUserIpDetails = async (lat, long) => {
         return { data: "Something Went Wrong", status: false, code: 500 }
     }
 }
+
+
+const getAllUsersWithPagination = async (searchQuery, page = 1, limit = 10) => {
+    try {
+        let query = {
+            active: true
+        };
+
+        if (searchQuery) {
+            query.$or = [
+                { name: { $regex: `^${searchQuery}`, $options: 'i' } },
+                { email: { $regex: `^${searchQuery}`, $options: 'i' } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const users = await User.find(query).sort({ _id: -1 }).skip(skip).limit(limit);
+
+        const totalUsers = await User.countDocuments(query);
+
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        return {
+            code: 201,
+            status: true,
+            users,
+            pagination: {
+                totalUsers,
+                totalPages,
+                currentPage: page,
+                pageSize: limit
+            }
+        };
+    } catch (error) {
+        return { message: error.message, status: false, code: 500 };
+    }
+};
+
+
+
 module.exports = {
     getUsersList,
     getUserById,
@@ -198,5 +239,6 @@ module.exports = {
     updateProfile,
     deleteUser,
     getUserDetailsById,
-    fetchUserIpDetails
+    fetchUserIpDetails,
+    getAllUsersWithPagination
 };

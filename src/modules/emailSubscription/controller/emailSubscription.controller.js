@@ -9,7 +9,7 @@ const addEmailSubscription = catchAsync(async (req, res) => {
     try {
         const { email, userId, isEmailSubscribed } = req.body;
         let emailSubscriptionBody = { email, userId, isEmailSubscribed };
-        const emailSubscriptionRes = await emailSubscriptionService.addEmailSubscription(emailSubscriptionBody);
+        const emailSubscriptionRes = await emailSubscriptionService.addEmailSubscription(req,emailSubscriptionBody);
         const emailSubscribe = emailSubscriptionRes;
         sendResponse(res, httpStatus.CREATED, { emailSubscribe }, null);
     } catch (error) {
@@ -23,9 +23,9 @@ const getAllSubscriptions = catchAsync(async (req, res) => {
         console.log("Get Subscribe All");
 
         // Get body parameters for pagination and search
-        const { page = 1, limit = 10, name, email } = req.body;
+        const { page = 1, limit = 10, searchQuery } = req.body;
 
-        const emailSubscriptionRes = await emailSubscriptionService.getAllSubscriptions(page, limit, name, email);
+        const emailSubscriptionRes = await emailSubscriptionService.getAllSubscriptions(page, limit,searchQuery );
         if (!emailSubscriptionRes.status) {
             return sendResponse(res, emailSubscriptionRes.code, null, "Subscribe not found");
         }
