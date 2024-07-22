@@ -76,7 +76,9 @@ const update = {
       orderType: Joi.string()
         .valid('cod', 'online')
         .optional(),
-
+      status: Joi.string()
+        .valid('pending', 'shipped', 'delivered', 'cancelled', 'paid')
+        .optional(),
     })
     .min(1), // Ensure at least one field is being updated
 };

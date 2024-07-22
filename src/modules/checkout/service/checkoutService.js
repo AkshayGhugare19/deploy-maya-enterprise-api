@@ -101,6 +101,7 @@ const createCheckout = async (req, res) => {
     return { code: 500, status: false, data: error.message };
   }
 };
+
 const getSessionInfo = async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(
@@ -111,7 +112,7 @@ const getSessionInfo = async (req, res) => {
     const orderType = session.metadata.orderType;
 
     const orderItems = await OrderItem.find({ orderId });
-    
+
     for (const item of orderItems) {
       const productId = item.productId;
       const quantity = item.quantity;
@@ -120,33 +121,43 @@ const getSessionInfo = async (req, res) => {
       if (!product) {
         return { code: 404, status: false, data: `Product with ID ${productId} not found` };
       }
-      console.log("KKKKKK",product.productQuantity , quantity,item)
-      const ORDER = await Order.findById({_id:item.orderId});
-      if(ORDER.status !=="paid"){
-        console.log("DONEtttww",ORDER)
+      console.log("KKKKKK", product.productQuantity, quantity, item)
+      const ORDER = await Order.findById({ _id: item.orderId });
+      if (ORDER?.status !== "paid") {
+        console.log("DONEtttww", ORDER)
         const newProductQuantity = Math.max(product.productQuantity - quantity, 0);
         await Product.findByIdAndUpdate(productId, { productQuantity: newProductQuantity });
-      }else{
-        console.log("Elseoooerre",ORDER)
+      } else {
+        console.log("Elseoooerre", ORDER)
         const paymentIntent = await stripe.paymentIntents.retrieve(
           session.payment_intent
         );
-    
-        return { code: 201, status: true, data: paymentIntent };
+
+        const finalData = {
+          paymentIntent,
+          metadata: session.metadata
+        }
+
+        return { code: 201, status: true, data: finalData };
       }
-      
+
     }
 
     await Order.updateOne(
       { _id: orderId },
-      { $set: { stripeSessionId: session.id, mode: orderMode, orderType: orderType,status:"paid" } }
+      { $set: { stripeSessionId: session.id } }
     );
 
     const paymentIntent = await stripe.paymentIntents.retrieve(
       session.payment_intent
     );
 
-    return { code: 201, status: true, data: paymentIntent };
+    const finalData = {
+      paymentIntent,
+      metadata: session.metadata
+    }
+
+    return { code: 201, status: true, data: finalData };
   } catch (error) {
     console.error("Error getting session Info:", error);
     return { code: 500, status: false, data: error.message };

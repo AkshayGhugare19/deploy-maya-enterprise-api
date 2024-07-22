@@ -360,6 +360,11 @@ const fetchProductsOfNoOrderItems = async (id) => {
                 $unwind: '$productDetails'
             },
             {
+                $match: {
+                    'productDetails.productQuantity': { $gt: 0 }
+                }
+            },
+            {
                 $group: {
                     _id: '$productId',
                     productDetails: { $first: '$productDetails' },

@@ -34,6 +34,7 @@ const update = {
     categoryId: Joi.array().items(objectId).optional(),
     location: Joi.string().optional(),
     rating: Joi.number().min(0).max(5).optional(),
+    active: Joi.boolean().optional()
   }).min(1), // Ensure at least one field is being updated
 };
 
